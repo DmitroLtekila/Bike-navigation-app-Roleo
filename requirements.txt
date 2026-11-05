@@ -1,0 +1,9 @@
+streamlit
+streamlit-folium
+streamlit-searchbox
+streamlit-geolocation
+folium>=0.15
+pandas
+pyproj
+requests
+psycopg2-binary

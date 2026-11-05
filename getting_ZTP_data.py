@@ -19,7 +19,7 @@ def run_query(sql, params=(), fetch=False):
         password=os.getenv("PGPASSWORD", ""),
     )
     try:
-        with conn, conn.cursor() as cur:   # "with conn" commits on success
+        with conn, conn.cursor() as cur:
             cur.execute(sql, params)
             return cur.fetchall() if fetch else None
     finally:
@@ -48,21 +48,18 @@ st.set_page_config(
 )
 st.markdown(
     """
-    <style>
-        /* pełnoekranowa mapa */
+    <style>d
         .block-container { padding: 0 !important; margin: 0 !important; max-width: 100vw !important; }
         [data-testid="stVerticalBlock"] { gap: 0 !important; }
         footer, [data-testid="stToolbar"], [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"] { display: none !important; }
         header[data-testid="stHeader"] { display: none !important; }
- 
-        /* tylko iframe mapy (nie wyszukiwarek!) */
+
         iframe[title="streamlit_folium.st_folium"] {
             height: 100vh !important; width: 100% !important;
             border: none !important; display: block !important;
         }
- 
-        /* mały, jasny panel nad mapą */
+
         .st-key-panel {
             position: fixed !important; top: 8px; left: 12px; width: 310px;
             z-index: 1000000; background: #ffffff;
@@ -71,10 +68,62 @@ st.markdown(
             border: 1px solid rgba(0,0,0,0.08);
         }
         .st-key-panel [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
-        .st-key-panel [data-testid="stExpander"] details { border: none !important; }
-        .st-key-panel [data-testid="stExpander"] summary { padding: 0.35rem 0.3rem !important; font-weight: 600; }
-        .st-key-panel [data-testid="stExpanderDetails"] { padding: 0 0.3rem 0.4rem 0.3rem !important; }
- 
+        .st-key-panel [data-testid="stExpander"] details,
+        .st-key-panel [data-testid="stExpander"] details[open] {
+            background: #ffffff !important;
+        }
+        .st-key-panel [data-testid="stExpander"] summary,
+        .st-key-panel [data-testid="stExpander"] summary:hover,
+        .st-key-panel [data-testid="stExpander"] summary:focus,
+        .st-key-panel [data-testid="stExpander"] summary:active,
+        .st-key-panel [data-testid="stExpander"] details[open] > summary {
+            background-color: #ede9fe !important;  
+            color: #1e293b !important;
+            border-radius: 8px;
+            padding: 0.35rem 0.5rem !important;
+            font-weight: 600;
+        }
+        .st-key-panel [data-testid="stExpander"] summary *,
+        .st-key-panel [data-testid="stExpander"] summary svg {
+            color: #1e293b !important;
+            fill: #1e293b !important;
+        }
+        .st-key-panel [data-baseweb="tag"] {
+        background-color: #facc15 !important;   /* yellow */
+        color: #1e293b !important;
+        }
+        .st-key-panel [data-baseweb="tag"] span,
+        .st-key-panel [data-baseweb="tag"] svg {
+            color: #1e293b !important;
+            fill: #1e293b !important;
+        }
+        .st-key-panel span[data-baseweb="tag"],
+        .st-key-panel [data-testid="stMultiSelect"] [data-baseweb="tag"],
+        .st-key-panel [data-baseweb="tag"] > * {
+            background-color: #facc15 !important;
+            color: #1e293b !important;
+        }
+        .st-key-panel [data-testid="stCaptionContainer"],
+        .st-key-panel [data-testid="stCaptionContainer"] *,
+        .st-key-panel summary, .st-key-panel summary * { color: #1e293b !important; }
+
+        .st-key-panel iframe { color-scheme: light !important; border: none !important; background: transparent !important; }
+        
+        .st-key-report_btn {
+        position: fixed !important; top: 12px; right: 12px;
+        width: 100px; z-index: 1000000;
+        }
+        .st-key-report_btn button {
+            width: 100px; height: 100px; min-height: 100px; padding: 6px;
+            background: #dc2626 !important; border: none !important;
+            border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+        .st-key-report_btn button:hover { background: #b91c1c !important; }
+        .st-key-report_btn button p {
+            font-size: 14px; font-weight: 700; line-height: 1.25;
+            color: #ffffff !important; white-space: normal; text-align: center;
+}
+        
         /* karta ze statystykami trasy */
         .route-hud {
             position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
@@ -134,7 +183,7 @@ def add_icons(selected_layers):
                 icon=folium.Icon(color=COLOR_krakow_map.get(typ, "blue")),
             ).add_to(group)
 rows = get_active_obstacles() or []
-obstacles = tuple((lon, lat, r) for _, _, _, lat, lon, r, _ in rows)   # (lon, lat, promień)
+obstacles = tuple((lon, lat, r) for _, _, _, lat, lon, r, _ in rows)
 
 for hid, street, desc, lat, lon, radius, expires in rows:
     until = expires.astimezone(ZoneInfo("Europe/Warsaw")).strftime("%d.%m %H:%M")
@@ -190,6 +239,10 @@ def parse_point(value: str | None) -> tuple[float, float] | None:
     lat, lon = value.split(",")
     return float(lat), float(lon)
 
+def route_stats(route) -> tuple[float, float]:
+    """Zwraca (metry, sekundy) dla trasy z BRouter."""
+    props = route["features"][0]["properties"]
+    return float(props.get("track-length", 0)), float(props.get("total-time", 0))
 # ==============================SEARCHING FOR A NEAREST OBJECT============================== #
 # nearest_obg = st.button("Znajdz najblirzszą stacje rowerową")
 # if nearest_obg:
@@ -212,7 +265,7 @@ def build_a_route(lon1, lat1, lon2, lat2, obstacles: list[tuple[float, float, in
 
 def draw_routes(a, b, obstacles, color, label):
     """a, b = (lat, lon). Rysuje trasę(-y) i zwraca tekst na pasek HUD (albo None)."""
-    normal = build_a_route(a[1], a[0], b[1], b[0])                  # bez przeszkód
+    normal = build_a_route(a[1], a[0], b[1], b[0])          
     if not (normal and normal.get("features")):
         return None
     m_n, s_n = route_stats(normal)
@@ -220,8 +273,8 @@ def draw_routes(a, b, obstacles, color, label):
     detour = build_a_route(a[1], a[0], b[1], b[0], obstacles) if obstacles else None
     has_detour = bool(detour and detour.get("features"))
     if has_detour:
-        m_d, s_d = route_stats(detour)
-    blocked = has_detour and abs(m_d - m_n) > 5     # trasy się różnią -> przeszkoda leży na drodze
+        m_d, s_d = route_stats(detour) if has_detour else (m_n, s_n)
+    blocked = has_detour and abs(m_d - m_n) > 5
 
     if blocked:
         folium.GeoJson(
@@ -233,15 +286,15 @@ def draw_routes(a, b, obstacles, color, label):
             style_function=lambda _: {"color": color, "weight": 6, "opacity": 0.9},
         ).add_to(krakow_map)
         extra = max(1, round((s_d - s_n) / 60))
-        return f"{label}: {s_d / 60:.0f} min • {m_d / 1000:.2f} km • ⚠️ objazd +{extra} min"
+        return f"{label}: {s_d / 60:.0f} min • {m_d / 1000:.2f} km • objazd +{extra} min"
 
     folium.GeoJson(
         normal,
         style_function=lambda _: {"color": color, "weight": 6, "opacity": 0.9},
     ).add_to(krakow_map)
-    text = f"{label}: {s_n / 60:.0f} min • {m_n / 1000:.2f} km"
+    text = f"{label}: {s_n / 60:.0f} min {m_n / 1000:.2f} km"
     if obstacles and not has_detour:
-        text += " • ⚠️ nie znaleziono objazdu"
+        text += "nie znaleziono objazdu"
     return text
 # ==============================GET NAME BY LOCATION============================== #
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -272,10 +325,11 @@ DURATIONS = {"1 godzina": 1, "6 godzin": 6, "24 godziny": 24, "7 dni": 168}
 @st.dialog("Zgłoś przeszkodę")
 def report_dialog():
     query = st.text_input("Ulica / miejsce", placeholder="np. Karmelicka 10 (zatwierdź Enterem)")
-    options = dict(search_address(query))            # etykieta -> "lat,lon"
+    options = dict(search_address(query))     
     choice = st.selectbox("Wybierz adres", options=list(options.keys()))
     description = st.text_area("Opis", placeholder="np. rozkopana ścieżka rowerowa", max_chars=200)
     duration = st.selectbox("Jak długo?", options=list(DURATIONS.keys()))
+    radius = st.slider("Promień przeszkody (m)", min_value=10, max_value=300, value=50, step=10)
     if st.button("Zgłoś", type="primary"):
         if not choice:
             st.error("Wpisz ulicę i wybierz adres z listy.")
@@ -285,13 +339,14 @@ def report_dialog():
             st.error("Nie udało się odczytać współrzędnych adresu.")
             return
         lat, lon = point
-        add_hazard(choice, description, lat, lon, DURATIONS[duration])
-        get_active_obstacles.clear()                 # odśwież listę zgłoszeń
-        st.rerun()                                   # zamyka okno i odświeża mapę
+        add_hazard(choice, description, lat, lon, DURATIONS[duration], radius)
+        get_active_obstacles.clear()            
+        st.rerun()                         
 # ==============================SIDE PANEL============================== #
 with st.container(key="panel"):
-    if st.button("Zgłoś przeszkodę", use_container_width=True):
-        report_dialog()
+    with st.container(key="report_btn"):
+        if st.button("🚧 Zgłoś przeszkodę!", help="Zgłoś przeszkodę"):
+            report_dialog()
     with st.expander("🚲 Roleo Bike Nav", expanded=True):
         c1, c2 = st.columns([1, 5])
         with c1:
@@ -330,35 +385,26 @@ with st.container(key="panel"):
     finish = parse_point(finish_value)
 
 # ==============================BUILD A ROUTE============================== #
-hud_html=""
+hud_parts = []
+focus = []
+if start:
+    folium.Marker(start, tooltip="Start", icon=folium.Icon(color="green", icon="play")).add_to(krakow_map)
+    focus.append(start)
+if finish:
+    folium.Marker(finish, tooltip="Meta", icon=folium.Icon(color="red", icon="flag")).add_to(krakow_map)
+    focus.append(finish)
+
 if start and finish:
-    route = build_a_route(start[1], start[0], finish[1], finish[0])
-    # route_geoJSON = route_geo.json()
-    
-    if route and route.get("features"):
-        props = route["features"][0]["properties"]
-        distance_km = float(props.get("track-length", 0)) / 1000
-        time_min = float(props.get("total-time", 0)) / 60
-        ascend_m = float(props.get("filtered ascend", 0))
-    
-        folium.GeoJson(
-            route, 
-            name="Trasa rowerowa",
-            style_function=lambda _: {"color": "#2563eb", "weight": 6, "opacity": 0.85}
-        ).add_to(krakow_map)
-        
-        folium.Marker(start, tooltip="Start", icon=folium.Icon(color="green", icon="play")).add_to(krakow_map)
-        folium.Marker(finish, tooltip="Meta", icon=folium.Icon(color="red", icon="flag")).add_to(krakow_map)
-        krakow_map.fit_bounds([start, finish], padding=(80, 80))
-        hud_html = (
-            f'<div class="route-hud">📏 {distance_km:.2f} km &nbsp;•&nbsp; '
-            f'⏱️ {time_min:.0f} min &nbsp;•&nbsp; ⛰️ {ascend_m:.0f} m</div>'
-        )
+    text = draw_routes(start, finish, obstacles, "#2563eb", "Trasa")
+    if text:
+        hud_parts.append(text)
     else:
         route_slot.warning("Nie udało się wyznaczyć trasy.")
-    
-if hud_html:
-    st.markdown(hud_html, unsafe_allow_html=True)
+
+if len(focus) >= 2:
+    krakow_map.fit_bounds(focus, padding=(80, 80))
+if hud_parts:
+    st.markdown(f'<div class="route-hud">{" &nbsp;|&nbsp; ".join(hud_parts)}</div>', unsafe_allow_html=True)
 
 # ==============================RUNNING PROGRAM============================== #
 add_icons(selected_layers)
