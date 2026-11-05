@@ -51,9 +51,18 @@ st.markdown(
     <style>
         .block-container { padding: 0 !important; margin: 0 !important; max-width: 100vw !important; }
         [data-testid="stVerticalBlock"] { gap: 0 !important; }
-        footer, [data-testid="stToolbar"], [data-testid="stSidebar"],
-        [data-testid="stSidebarCollapsedControl"] { display: none !important; }
-        header[data-testid="stHeader"] { display: none !important; }
+
+        /* Hidden controls: footer is kept visible so the box sits directly above it */
+        [data-testid="stToolbar"], [data-testid="stSidebar"],
+        [data-testid="stSidebarCollapsedControl"],
+        header[data-testid="stHeader"] { 
+            display: none !important; 
+        }
+
+        /* Ensure footer stays in background */
+        footer {
+            z-index: 100 !important;
+        }
 
         iframe[title="streamlit_folium.st_folium"] {
             height: 100vh !important; width: 100% !important;
@@ -127,31 +136,29 @@ st.markdown(
             color: #ffffff !important; white-space: normal; text-align: center;
         }
         
-        /* karta ze statystykami trasy — справа по центру, вертикально */
+        /* Box placed directly above the Streamlit badge */
         .route-hud {
             position: fixed !important;
-            right: 12px !important;
-            top: 50% !important;
-            bottom: auto !important;
+            right: 14px !important;
+            bottom: calc(44px + env(safe-area-inset-bottom)) !important;
+            top: auto !important;
             left: auto !important;
-            transform: translateY(-50%) !important;
+            transform: none !important;
             z-index: 9998;
             background: rgba(255, 255, 255, 0.96);
-            padding: 14px 10px;
-            border-radius: 16px;
+            padding: 10px 14px;
+            border-radius: 14px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
             font-family: sans-serif;
             font-size: 13px;
             font-weight: 600;
             color: #1e293b;
-            max-width: 140px;
             text-align: center;
-            line-height: 1.4;
-            white-space: normal;
-            word-break: break-word;
+            line-height: 1.35;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
+            pointer-events: auto;
         }
     </style>
     """,
