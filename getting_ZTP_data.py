@@ -269,11 +269,6 @@ def route_stats(route) -> tuple[float, float]:
     """Zwraca (metry, sekundy) dla trasy z BRouter."""
     props = route["features"][0]["properties"]
     return float(props.get("track-length", 0)), float(props.get("total-time", 0))
-# ==============================SEARCHING FOR A NEAREST OBJECT============================== #
-# nearest_obg = st.button("Znajdz najblirzszą stacje rowerową")
-# if nearest_obg:
-
-    
 
 # ==============================BUILDING A ROUTE============================== #
 @st.cache_data(ttl=600, show_spinner=False)
@@ -369,6 +364,15 @@ def report_dialog():
         get_active_obstacles.clear()            
         st.rerun()                         
 # ==============================SIDE PANEL============================== #
+def safe_searchbox(search_fn, key: str, placeholder: str):
+    """Защита от бага IndexError внутри библиотеки streamlit_searchbox."""
+    try:
+        return st_searchbox(search_fn, key=key, placeholder=placeholder)
+    except (IndexError, KeyError):
+        st.session_state.pop(key, None)
+        return None
+
+
 with st.container(key="panel"):
     with st.container(key="report_btn"):
         if st.button("🚧 Zgłoś przeszkodę!", help="Zgłoś przeszkodę"):
@@ -394,8 +398,8 @@ with st.container(key="panel"):
                     st.rerun()
             start_value = None
         else:
-            start_value = st_searchbox(search_address, key="start", placeholder="Punkt startowy")
-        finish_value = st_searchbox(
+            start_value = safe_searchbox(search_address, key="start", placeholder="Punkt startowy")
+        finish_value = safe_searchbox(
             search_address, key="finish", placeholder="Cel podróży"
         )
         selected_layers = st.multiselect(
