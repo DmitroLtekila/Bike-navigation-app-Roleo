@@ -155,10 +155,10 @@ COLOR_krakow_map = {
     "wielopoziomowy parking": "purple"
 }
 DEFAULT_LAYERS = ["stacja naprawy rowerów"]
-max_lat = df["lat"].max() + 0.02
-min_lat = df["lat"].min() - 0.02
-max_lon = df["lon"].max() + 0.02
-min_lon = df["lon"].min() - 0.02
+max_lat = df["lat"].max() + 0.15
+min_lat = df["lat"].min() - 0.15
+max_lon = df["lon"].max() + 0.30
+min_lon = df["lon"].min() - 0.30
 krakow_map = folium.Map(
     location=[50.0614, 19.9366], 
     zoom_start=14, 
