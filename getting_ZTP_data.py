@@ -110,8 +110,11 @@ st.markdown(
         .st-key-panel iframe { color-scheme: light !important; border: none !important; background: transparent !important; }
         
         .st-key-report_btn {
-        position: fixed !important; top: 12px; right: 12px;
-        width: 100px; z-index: 1000000;
+            position: fixed !important;
+            left: 12px;
+            bottom: calc(24px + env(safe-area-inset-bottom));
+            top: auto !important; right: auto !important;
+            width: 100px; z-index: 1000000;
         }
         .st-key-report_btn button {
             width: 100px; height: 100px; min-height: 100px; padding: 6px;
