@@ -48,7 +48,7 @@ st.set_page_config(
 )
 st.markdown(
     """
-    <style>d
+    <style>
         .block-container { padding: 0 !important; margin: 0 !important; max-width: 100vw !important; }
         [data-testid="stVerticalBlock"] { gap: 0 !important; }
         footer, [data-testid="stToolbar"], [data-testid="stSidebar"],
@@ -89,8 +89,8 @@ st.markdown(
             fill: #1e293b !important;
         }
         .st-key-panel [data-baseweb="tag"] {
-        background-color: #facc15 !important;   /* yellow */
-        color: #1e293b !important;
+            background-color: #facc15 !important;   /* yellow */
+            color: #1e293b !important;
         }
         .st-key-panel [data-baseweb="tag"] span,
         .st-key-panel [data-baseweb="tag"] svg {
@@ -125,16 +125,27 @@ st.markdown(
         .st-key-report_btn button p {
             font-size: 14px; font-weight: 700; line-height: 1.25;
             color: #ffffff !important; white-space: normal; text-align: center;
-}
+        }
         
-        /* karta ze statystykami trasy */
+        /* karta ze statystykami trasy — снизу по центру */
         .route-hud {
-            position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
-            z-index: 9998; background: rgba(255,255,255,0.96);
-            padding: 8px 20px; border-radius: 999px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-            font-family: sans-serif; font-size: 14px; font-weight: 600; color: #1e293b;
+            position: fixed !important;
+            bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+            top: auto !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 9998;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 8px 20px;
+            border-radius: 999px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
             white-space: nowrap;
+            max-width: 90vw;
+            text-align: center;
         }
     </style>
     """,
@@ -171,7 +182,8 @@ krakow_map = folium.Map(
     max_lat=max_lat,
     min_lon=min_lon,
     max_lon=max_lon,
-    tiles="OpenStreetMap"
+    tiles="OpenStreetMap",
+    zoom_control=False,
 )
 
 # ==============================MAPPING OBJECTS============================== #
