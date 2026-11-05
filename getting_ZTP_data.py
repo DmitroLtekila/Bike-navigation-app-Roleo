@@ -89,7 +89,7 @@ st.markdown(
             fill: #1e293b !important;
         }
         .st-key-panel [data-baseweb="tag"] {
-            background-color: #facc15 !important;   /* yellow */
+            background-color: #facc15 !important;
             color: #1e293b !important;
         }
         .st-key-panel [data-baseweb="tag"] span,
@@ -127,25 +127,31 @@ st.markdown(
             color: #ffffff !important; white-space: normal; text-align: center;
         }
         
-        /* karta ze statystykami trasy — снизу по центру */
+        /* karta ze statystykami trasy — справа по центру, вертикально */
         .route-hud {
             position: fixed !important;
-            bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-            top: auto !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
+            right: 12px !important;
+            top: 50% !important;
+            bottom: auto !important;
+            left: auto !important;
+            transform: translateY(-50%) !important;
             z-index: 9998;
             background: rgba(255, 255, 255, 0.96);
-            padding: 8px 20px;
-            border-radius: 999px;
+            padding: 14px 10px;
+            border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
             font-family: sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #1e293b;
-            white-space: nowrap;
-            max-width: 90vw;
+            max-width: 140px;
             text-align: center;
+            line-height: 1.4;
+            white-space: normal;
+            word-break: break-word;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
     </style>
     """,
