@@ -52,14 +52,12 @@ st.markdown(
         .block-container { padding: 0 !important; margin: 0 !important; max-width: 100vw !important; }
         [data-testid="stVerticalBlock"] { gap: 0 !important; }
 
-        /* Hidden controls: footer is kept visible so the box sits directly above it */
         [data-testid="stToolbar"], [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"],
         header[data-testid="stHeader"] { 
             display: none !important; 
         }
 
-        /* Ensure footer stays in background */
         footer {
             z-index: 100 !important;
         }
@@ -118,25 +116,25 @@ st.markdown(
 
         .st-key-panel iframe { color-scheme: light !important; border: none !important; background: transparent !important; }
         
+        /* Scaled to 75% (75px x 75px, 10.5px font) */
         .st-key-report_btn {
             position: fixed !important;
             left: 12px;
             bottom: calc(24px + env(safe-area-inset-bottom));
             top: auto !important; right: auto !important;
-            width: 100px; z-index: 1000000;
+            width: 75px !important; z-index: 1000000;
         }
         .st-key-report_btn button {
-            width: 100px; height: 100px; min-height: 100px; padding: 6px;
+            width: 75px !important; height: 75px !important; min-height: 75px !important; padding: 4px !important;
             background: #dc2626 !important; border: none !important;
-            border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            border-radius: 8px !important; box-shadow: 0 3px 10px rgba(0,0,0,0.3) !important;
         }
         .st-key-report_btn button:hover { background: #b91c1c !important; }
         .st-key-report_btn button p {
-            font-size: 14px; font-weight: 700; line-height: 1.25;
+            font-size: 10.5px !important; font-weight: 700 !important; line-height: 1.2 !important;
             color: #ffffff !important; white-space: normal; text-align: center;
         }
         
-        /* Box placed directly above the Streamlit badge */
         .route-hud {
             position: fixed !important;
             right: 14px !important;
